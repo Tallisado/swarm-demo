@@ -2,15 +2,60 @@ A example for running your microservices. You just need to checkout this code an
 ```
 vagrant up
 ```
-I tested it on Windows 10 with Vagrant and VirtualBox. Any issue, please report to me. Thank you.
 
 ![Microservices with Docker Swarm and Consul](https://sonnguyen.ws/wp-content/uploads/2015/12/clotify_microservice.png)
 
-After that, you can test with link: http://172.20.20.10
 
-Default access via SSH for all nodes user/pass: thanhson1085/password
+## Digital Ocean
+### Create and Provision VMs
 
-For unstanding about this source code, please read the series of post: [Microservices with Docker Swarm and Consul](https://sonnguyen.ws/microservices-with-docker-swarm-and-consul/)
+```
+export TOKEN=1ec4ee2efb062f7103691d7a0cdf98489a593991e9cba1f8871ffa84cfb31fbc
+```
 
-[![Demo Microservices](http://img.youtube.com/vi/Sg3OhUhGGL4/0.jpg)](http://www.youtube.com/watch?v=Sg3OhUhGGL4)
+```
+docker-machine create --driver digitalocean \
+--digitalocean-access-token=$TOKEN \
+--digitalocean-image=debian-8-x64 \
+--digitalocean-region=tor1 \
+ gateway
+```
 
+```
+docker-machine create --driver digitalocean \
+--digitalocean-access-token=$TOKEN \
+--digitalocean-image=ubuntu-14-04-x64 \
+--digitalocean-region=tor1 \
+ node1
+```
+
+```
+docker-machine create --driver digitalocean \
+--digitalocean-access-token=$TOKEN \
+--digitalocean-image=ubuntu-14-04-x64 \
+--digitalocean-region=tor1 \
+ node2
+```
+
+## Services (Some containerized)
+
+### Gateway
+- Consul : Service Discovery
+- Consul-Template : Live Configuration Updating
+- NGINX : Load Balancing
+
+```
+mkdir /build
+git clone https://github.com/Tallisado/swarm-demo.git /build
+cd /build/gateway
+chmod +x run.sh
+./run.sh
+```
+
+### Node
+
+mkdir /build
+git clone https://github.com/Tallisado/swarm-demo.git /build
+cd /build/agent-one
+chmod +x run.sh
+./run.sh

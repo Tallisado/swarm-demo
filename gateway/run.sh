@@ -30,7 +30,7 @@ unzip consul-template.zip
 chmod +x consul-template
 mv consul-template /usr/bin/consul-template
 
-ufw enable
+ufw --force enable
 ufw allow 8500
 ufw allow 8400
 ufw allow 8300
@@ -45,6 +45,6 @@ consul agent -server -bootstrap-expect 1 \
 
 consul-template \
   -consul 127.0.0.1:8500 \
-  -template "/build/swarm-demo/gateway/consul-template/nginx.ctmpl:/etc/nginx/sites-available/default:service nginx reload || true" \
+  -template "/build/gateway/consul-template/nginx.ctmpl:/etc/nginx/sites-available/default:service nginx reload || true" \
   -retry 30s \
   &
