@@ -45,6 +45,7 @@ docker-machine create --driver digitalocean \
 - NGINX : Load Balancing
 
 ```
+docker-machine ssh gateway
 mkdir /build
 git clone https://github.com/Tallisado/swarm-demo.git /build
 cd /build/gateway
@@ -54,8 +55,11 @@ chmod +x run.sh
 
 ### Node
 
+```
+docker-machine ssh node1
 mkdir /build
 git clone https://github.com/Tallisado/swarm-demo.git /build
 cd /build/agent-one
 chmod +x run.sh
 ./run.sh
+```

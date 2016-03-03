@@ -1,7 +1,7 @@
 #!/bin/bash
 
 echo Fetching swarm from my git ...
-cp /build/swarm-demo/agent-one/init/*.conf /etc/init/
+cp /build/agent-one/init/*.conf /etc/init/
 
 echo Installing dependencies...
 apt-get update && \
@@ -15,7 +15,7 @@ echo Installing Consul...
 unzip consul.zip
 chmod +x consul
 mv consul /usr/bin/consul
-cp -R /build/swarm-demo/agent-one/consul.d /etc/
+cp -R /build/agent-one/consul.d /etc/
 start consul-agent
 
 echo Installing Docker ...
@@ -29,7 +29,7 @@ apt-get update && \
 apt-get update && \
     apt-get install -y docker-engine
 
-cp /build/swarm-demo/agent-one/docker /etc/default/docker
+cp /build/agent-one/docker /etc/default/docker
 service docker restart
 
 echo Installing Docker Compose
