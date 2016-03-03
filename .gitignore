@@ -1,0 +1,4 @@
+*.swo
+*.swp
+.vagrant
+vars.yml
