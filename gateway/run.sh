@@ -1,7 +1,7 @@
 #!/bin/bash
 echo Installing dependencies...
 apt-get update && \
-    apt-get install -y unzip curl wget nginx
+    apt-get install -y unzip curl wget nginx ufw
 
 echo Fetching Consul...
 cd /tmp/
@@ -30,14 +30,21 @@ unzip consul-template.zip
 chmod +x consul-template
 mv consul-template /usr/bin/consul-template
 
+ufw enable
+ufw allow 8500
+ufw allow 8400
+ufw allow 8300
+
 MYIP=`/sbin/ifconfig eth0 | grep 'inet addr:' | cut -d: -f2| cut -d' ' -f1 |  tr -d '[[:space:]]'`
 
 consul agent -server -bootstrap-expect 1 \
 	-data-dir /tmp/consul -node=gateway -bind=$MYIP \
 	-client=0.0.0.0 \
-	-config-dir /etc/consul.d -ui-dir /opt/consul/
+	-config-dir /etc/consul.d -ui-dir /opt/consul/ \
+  &
 
 consul-template \
-    -consul 127.0.0.1:8500 \
-    -template "/build/swarm-demo/gateway/consul-template/nginx.ctmpl:/etc/nginx/sites-available/default:service nginx reload" \
-    -retry 30s
+  -consul 127.0.0.1:8500 \
+  -template "/build/swarm-demo/gateway/consul-template/nginx.ctmpl:/etc/nginx/sites-available/default:service nginx reload || true" \
+  -retry 30s \
+  &

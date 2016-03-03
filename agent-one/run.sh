@@ -1,8 +1,6 @@
 #!/bin/bash
 
-echo Fetching microservices-swarm-consul ...
-git clone https://github.com/tallisado/swarm-demo.git  /build
-cd /build/agent-one
+echo Fetching swarm from my git ...
 cp /build/swarm-demo/agent-one/init/*.conf /etc/init/
 
 echo Installing dependencies...
