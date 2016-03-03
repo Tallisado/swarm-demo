@@ -30,12 +30,6 @@ unzip consul-template.zip
 chmod +x consul-template
 mv consul-template /usr/bin/consul-template
 
-echo Fetching microservices-swarm-consul ...
-git clone https://github.com/thanhson1085/microservices-swarm-consul.git  /build
-cd /build/gateway/
-# cp init/consul-server.conf /etc/init/
-# cp init/consul-template.conf /etc/init/
-
 MYIP=`/sbin/ifconfig eth0 | grep 'inet addr:' | cut -d: -f2| cut -d' ' -f1 |  tr -d '[[:space:]]'`
 
 consul agent -server -bootstrap-expect 1 \
@@ -45,5 +39,5 @@ consul agent -server -bootstrap-expect 1 \
 
 consul-template \
     -consul 127.0.0.1:8500 \
-    -template "/build/gateway/consul-template/nginx.ctmpl:/etc/nginx/sites-available/default:service nginx reload" \
+    -template "/build/swarm-demo/gateway/consul-template/nginx.ctmpl:/etc/nginx/sites-available/default:service nginx reload" \
     -retry 30s
