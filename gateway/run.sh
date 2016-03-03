@@ -1,6 +1,4 @@
 #!/bin/bash
-sudo su -
-
 echo Installing dependencies...
 apt-get update && \
     apt-get install -y unzip curl wget nginx
@@ -35,8 +33,17 @@ mv consul-template /usr/bin/consul-template
 echo Fetching microservices-swarm-consul ...
 git clone https://github.com/thanhson1085/microservices-swarm-consul.git  /build
 cd /build/gateway/
-cp init/consul-server.conf /etc/init/
-cp init/consul-template.conf /etc/init/
-start consul-server
-start consul-template
+# cp init/consul-server.conf /etc/init/
+# cp init/consul-template.conf /etc/init/
 
+MYIP=`/sbin/ifconfig eth0 | grep 'inet addr:' | cut -d: -f2| cut -d' ' -f1 |  tr -d '[[:space:]]'`
+
+consul agent -server -bootstrap-expect 1 \
+	-data-dir /tmp/consul -node=gateway -bind=$MYIP \
+	-client=0.0.0.0 \
+	-config-dir /etc/consul.d -ui-dir /opt/consul/
+
+consul-template \
+    -consul 127.0.0.1:8500 \
+    -template "/build/gateway/consul-template/nginx.ctmpl:/etc/nginx/sites-available/default:service nginx reload" \
+    -retry 30s
