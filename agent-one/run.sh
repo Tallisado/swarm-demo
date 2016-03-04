@@ -65,6 +65,8 @@ docker run -d --name swarm_joiner swarm join \
     --addr=$MYIP:2375 \
     token://acdb9dfa3ea6da0b0cfb2c819385fcd3
 
+sleep 5
+
 docker run -d -p 12375:2375 --name swarm_manager \
     swarm manage token://acdb9dfa3ea6da0b0cfb2c819385fcd3
 #
