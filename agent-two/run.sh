@@ -28,7 +28,8 @@ sleep 5
 consul agent -data-dir /tmp/consul -node=agent-two \
     -bind=$MYIP -client=0.0.0.0 \
 	-config-dir /etc/consul.d \
-    -retry-join $GATEWAY_IP
+    -retry-join $GATEWAY_IP \
+    &
 
 echo Installing Docker ...
 apt-key adv --keyserver hkp://p80.pool.sks-keyservers.net:80 --recv-keys 58118E89F3A912897C070ADBF76221572C52609D
