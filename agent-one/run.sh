@@ -20,8 +20,13 @@ cp -R /build/agent-one/consul.d /etc/
 MYIP=`/sbin/ifconfig eth0 | grep 'inet addr:' | cut -d: -f2| cut -d' ' -f1 |  tr -d '[[:space:]]'`
 GATEWAY_IP=$1
 
+ufw --force enable
+ufw default allow incoming
+
+sleep 5
+
 consul agent -data-dir /tmp/consul -node=agent-one \
-    -bind=172.20.20.11 -client=0.0.0.0 \
+    -bind=$MYIP -client=0.0.0.0 \
 	-config-dir /etc/consul.d \
     -retry-join $GATEWAY_IP
 
@@ -50,6 +55,7 @@ docker run -d -h $MYIP \
     gliderlabs/registrator:latest \
     consul://$MYIP:8500
 
+sleep 5
 echo Running cAdvisor...
 docker run --volume=/:/rootfs:ro \
     --volume=/var/run:/var/run:rw --volume=/sys:/sys:ro \
@@ -71,9 +77,21 @@ docker run -d -p 12375:2375 --name swarm_manager \
     swarm manage token://acdb9dfa3ea6da0b0cfb2c819385fcd3
 #
 # echo Running Mysql...
-# docker pull mysql:5.6
-# start docker-mysql
+
+cd /build/agent-one
+export DOCKER_HOST=tcp://$MYIP:12375
+
 
 # echo Running angular-admin-seed...
-# docker pull thanhson1085/angular-admin-seed:mysql
-# start docker-angular-admin-seed
+docker pull ghost
+export DOCKER_HOST=tcp://$MYIP:12375
+echo Docker Info...
+while true; do
+    if !docker info | grep "$MYIP" > /dev/null; then
+        echo Waiting for Swarm Manager working...
+        sleep 2;
+    else
+        break
+    fi;
+done
+docker-compose scale ghost=1

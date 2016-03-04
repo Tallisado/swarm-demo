@@ -1,5 +1,5 @@
-upstream angular-admin-seed {
-    {{range service "angular-admin-seed"}}
+upstream ghost {
+    {{range service "ghost"}}
     server {{.NodeAddress}}:{{.Port}};{{end}}
 }
 
@@ -11,7 +11,7 @@ server {
     server_name localhost;
 
     location / {
-        proxy_pass http://angular-admin-seed/;
+        proxy_pass http://ghost/;
     }
     access_log /var/log/nginx/access.log upstreamlog;
 }

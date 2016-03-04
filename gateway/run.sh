@@ -31,10 +31,7 @@ chmod +x consul-template
 mv consul-template /usr/bin/consul-template
 
 ufw --force enable
-ufw allow 8500
-ufw allow 8500
-ufw allow 8400
-ufw allow 8300
+ufw default allow incoming
 
 MYIP=`/sbin/ifconfig eth0 | grep 'inet addr:' | cut -d: -f2| cut -d' ' -f1 |  tr -d '[[:space:]]'`
 

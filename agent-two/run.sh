@@ -1,15 +1,11 @@
 #!/bin/bash
 
-sudo su -
-
-echo Fetching microservices-swarm-consul ...
-git clone https://github.com/thanhson1085/microservices-swarm-consul.git  /build
-cd /build/agent-two
-cp init/*.conf /etc/init/
+# echo Fetching swarm from my git ...
+# cp /build/agent-one/init/*.conf /etc/init/
 
 echo Installing dependencies...
 apt-get update && \
-    apt-get install -y unzip curl wget
+    apt-get install -y unzip curl wget ufw
 
 echo Fetching Consul...
 cd /tmp/
@@ -19,8 +15,20 @@ echo Installing Consul...
 unzip consul.zip
 chmod +x consul
 mv consul /usr/bin/consul
-cp -R /build/agent-two/consul.d /etc/
-start consul-agent
+cp -R /build/agent-one/consul.d /etc/
+
+MYIP=`/sbin/ifconfig eth0 | grep 'inet addr:' | cut -d: -f2| cut -d' ' -f1 |  tr -d '[[:space:]]'`
+GATEWAY_IP=$1
+
+ufw --force enable
+ufw default allow incoming
+
+sleep 5
+
+consul agent -data-dir /tmp/consul -node=agent-one \
+    -bind=$MYIP -client=0.0.0.0 \
+	-config-dir /etc/consul.d \
+    -retry-join $GATEWAY_IP
 
 echo Installing Docker ...
 apt-key adv --keyserver hkp://p80.pool.sks-keyservers.net:80 --recv-keys 58118E89F3A912897C070ADBF76221572C52609D
@@ -43,15 +51,27 @@ curl -L https://github.com/docker/compose/releases/download/1.5.2/docker-compose
 chmod +x /usr/local/bin/docker-compose
 
 echo Running Registrator...
-start docker-registrator
+docker run -d -h $MYIP \
+    --name=registrator \
+    --volume=/var/run/docker.sock:/tmp/docker.sock \
+    gliderlabs/registrator:latest \
+    consul://$MYIP:8500
 
+sleep 5
 echo Running cAdvisor...
-start docker-cadvisor
-
+docker run --volume=/:/rootfs:ro \
+    --volume=/var/run:/var/run:rw --volume=/sys:/sys:ro \
+    --volume=/var/lib/docker/:/var/lib/docker:ro \
+    --volume=/sys/fs/cgroup:/sys/fs/cgroup:ro \
+    --publish=8080:8080 \
+    --detach=true --name=cadvisor google/cadvisor:latest
 
 echo Installing Docker Swarm...
 docker pull swarm
-start swarm-join
 
-echo Pulling angular-admin-seed...
-docker pull thanhson1085/angular-admin-seed:mysql
+docker run -d --name swarm_joiner swarm join \
+    --addr=$MYIP:2375 \
+    token://acdb9dfa3ea6da0b0cfb2c819385fcd3
+
+
+docker pull ghost
