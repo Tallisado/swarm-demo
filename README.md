@@ -10,7 +10,7 @@ vagrant up
 ### Create and Provision VMs
 
 ```
-export TOKEN=1ec4ee2efb062f7103691d7a0cdf98489a593991e9cba1f8871ffa84cfb31fbc
+export TOKEN=bf8e0947b47761c61a3e12b402c127ac66f11768f8c07152649d33a263dd0b60
 ```
 
 ```

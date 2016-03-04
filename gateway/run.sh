@@ -32,6 +32,7 @@ mv consul-template /usr/bin/consul-template
 
 ufw --force enable
 ufw allow 8500
+ufw allow 8500
 ufw allow 8400
 ufw allow 8300
 
@@ -42,6 +43,8 @@ consul agent -server -bootstrap-expect 1 \
 	-client=0.0.0.0 \
 	-config-dir /etc/consul.d -ui-dir /opt/consul/ \
   &
+
+sleep 5
 
 consul-template \
   -consul 127.0.0.1:8500 \
