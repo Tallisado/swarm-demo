@@ -68,8 +68,7 @@ mkdir /build
 git clone https://github.com/Tallisado/swarm-demo.git /build
 cd /build/agent-one
 chmod +x run.sh
-export GATEWAY_IP=159.203.27.156
-./run.sh $GATEWAY_IP
+export GATEWAY_IP= && ./run.sh $GATEWAY_IP
 ```
 
 #### Deploy Services (NeODE2)
@@ -81,8 +80,7 @@ mkdir /build
 git clone https://github.com/Tallisado/swarm-demo.git /build
 cd /build/agent-two
 chmod +x run.sh
-export GATEWAY_IP=159.203.27.156
-./run.sh $GATEWAY_IP
+export GATEWAY_IP= && ./run.sh $GATEWAY_IP
 ```
 
 # Let's see the VMs using docker machine
@@ -120,4 +118,4 @@ docker-compose logs ghost
 
 - docker-compose scale ghost=2
 - docker-compose ps
-- removed containers from nodes dynamically 
+- removed containers from nodes dynamically
