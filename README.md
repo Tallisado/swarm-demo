@@ -1,18 +1,27 @@
-A example for running your microservices. You just need to checkout this code and run:
-```
-vagrant up
-```
-
 ![Microservices with Docker Swarm and Consul](https://sonnguyen.ws/wp-content/uploads/2015/12/clotify_microservice.png)
 
+# DEMO - Part One
 
-## Digital Ocean
+## Tooling
+- Docker-Toolbox
+- Docker-Machine
+- PaaS - Digital Ocean
+
+# DEMO - Part Two
+## Tooling
+- Swarm -> Cluster together docker hosts
+- Consul -> Service Discovery (not using DNS portion)
+- Consul-Template -> Template Rendering
+- NGINX -> Load Balancing
+- cAdvisor -> Resource Usage Analysis
+
 ### Create and Provision VMs
 
 ```
 export TOKEN=bf8e0947b47761c61a3e12b402c127ac66f11768f8c07152649d33a263dd0b60
 ```
 
+#### Create GATEWAY
 ```
 docker-machine create --driver digitalocean \
 --digitalocean-access-token=$TOKEN \
@@ -20,6 +29,7 @@ docker-machine create --driver digitalocean \
 --digitalocean-region=tor1 \
  gateway
 ```
+#### Create NODE1
 
 ```
 docker-machine create --driver digitalocean \
@@ -29,6 +39,8 @@ docker-machine create --driver digitalocean \
  node1
 ```
 
+#### Create NODE2
+
 ```
 docker-machine create --driver digitalocean \
 --digitalocean-access-token=$TOKEN \
@@ -37,13 +49,7 @@ docker-machine create --driver digitalocean \
  node2
 ```
 
-## Services (Some containerized)
-
-### Gateway
-- Consul : Service Discovery
-- Consul-Template : Live Configuration Updating
-- NGINX : Load Balancing
-
+#### Deploy Services (GATEWAY)
 ```
 docker-machine ssh gateway
 mkdir /build
@@ -53,7 +59,9 @@ chmod +x run.sh
 ./run.sh
 ```
 
-### Node
+#### Deploy Services (NODE1)
+Don't forget GATEWAY IP:
+![alt text](https://github.com/adam-p/markdown-here/raw/master/src/common/images/icon48.png "Logo Title Text 1")
 ```
 docker-machine ssh node1
 mkdir /build
@@ -64,7 +72,9 @@ export GATEWAY_IP=159.203.27.156
 ./run.sh $GATEWAY_IP
 ```
 
-
+#### Deploy Services (NeODE2)
+Don't forget GATEWAY IP:
+![alt text](https://github.com/adam-p/markdown-here/raw/master/src/common/images/icon48.png "Logo Title Text 1")
 ```
 docker-machine ssh node2
 mkdir /build
@@ -74,3 +84,40 @@ chmod +x run.sh
 export GATEWAY_IP=159.203.27.156
 ./run.sh $GATEWAY_IP
 ```
+
+# Let's see the VMs using docker machine
+
+- docker-machine ssh gateway
+- docker-machine ls
+
+```
+EXAMPLE:
+agent-one  159.203.27.163:8301  alive   client  0.6.0  2         dc1
+agent-two  159.203.27.168:8301  alive   client  0.6.0  2         dc1
+gateway    159.203.27.156:8301  alive   server  0.6.0  2         dc1
+```
+
+## GHOST
+- on node1
+```
+export DOCKER_HOST=tcp://$MYIP:12375
+docker-compose ps
+```
+- THEIP:THEGHOSTPORT
+
+## GHOST THROUGH NGINX
+- GATEWAYIP (defaults to port 80)
+
+## Lets scale a few containers across out nodes
+```
+docker-compose scale ghost=5
+```
+
+## Now when we refresh the page, nginx will load balance across all the containers. These could be living in different DataCenters!
+```
+docker-compose logs ghost
+```
+
+- docker-compose scale ghost=2
+- docker-compose ps
+- removed containers from nodes dynamically 
