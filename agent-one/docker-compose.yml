@@ -1,4 +1,5 @@
 ghost:
     image: ghost
+    privileged: true
     ports:
         - 2368
