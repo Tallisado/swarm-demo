@@ -55,22 +55,22 @@ chmod +x run.sh
 
 ### Node
 ```
-export GATEWAY_IP=159.203.8.241
 docker-machine ssh node1
 mkdir /build
 git clone https://github.com/Tallisado/swarm-demo.git /build
 cd /build/agent-one
 chmod +x run.sh
+export GATEWAY_IP=159.203.27.156
 ./run.sh $GATEWAY_IP
 ```
 
 
 ```
-export GATEWAY_IP=159.203.8.241
 docker-machine ssh node2
 mkdir /build
 git clone https://github.com/Tallisado/swarm-demo.git /build
-cd /build/agent-one
+cd /build/agent-two
 chmod +x run.sh
+export GATEWAY_IP=159.203.27.156
 ./run.sh $GATEWAY_IP
 ```

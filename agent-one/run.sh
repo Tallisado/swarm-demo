@@ -86,12 +86,13 @@ export DOCKER_HOST=tcp://$MYIP:12375
 docker pull ghost
 export DOCKER_HOST=tcp://$MYIP:12375
 echo Docker Info...
-while true; do
-    if !docker info | grep "$MYIP" > /dev/null; then
-        echo Waiting for Swarm Manager working...
-        sleep 2;
-    else
-        break
-    fi;
-done
+# while true; do
+#     if !docker info | grep "$MYIP" > /dev/null; then
+#         echo Waiting for Swarm Manager working...
+#         sleep 2;
+#     else
+#         break
+#     fi;
+# done
+sleep 10
 docker-compose scale ghost=1
