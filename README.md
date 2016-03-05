@@ -60,27 +60,23 @@ chmod +x run.sh
 ```
 
 #### Deploy Services (NODE1)
-Don't forget GATEWAY IP:
-![alt text](https://github.com/adam-p/markdown-here/raw/master/src/common/images/icon48.png "Logo Title Text 1")
 ```
-docker-machine ssh node1
-mkdir /build
-git clone https://github.com/Tallisado/swarm-demo.git /build
-cd /build/agent-one
-chmod +x run.sh
-export GATEWAY_IP= && ./run.sh $GATEWAY_IP
+export GATEWAY_IP=`docker-machine inspect gateway | grep IPAddress | tr -d '[[:space:]]' | cut -d':' -f2 | cut -d'"' -f2`
+docker-machine ssh node1 "mkdir /build; git clone https://github.com/Tallisado/swarm-demo.git /build; cd /build/agent-one; chmod +x run.sh; ./run.sh $GATEWAY_IP"
 ```
 
-#### Deploy Services (NeODE2)
-Don't forget GATEWAY IP:
-![alt text](https://github.com/adam-p/markdown-here/raw/master/src/common/images/icon48.png "Logo Title Text 1")
+#### Deploy Services (NODE[n])
+##### Node 2 -- But this can be repeated as many times as needed
 ```
-docker-machine ssh node2
-mkdir /build
-git clone https://github.com/Tallisado/swarm-demo.git /build
-cd /build/agent-two
-chmod +x run.sh
-export GATEWAY_IP= && ./run.sh $GATEWAY_IP
+export GATEWAY_IP=`docker-machine inspect gateway | grep IPAddress | tr -d '[[:space:]]' | cut -d':' -f2 | cut -d'"' -f2`
+docker-machine ssh node2 "mkdir /build; git clone https://github.com/Tallisado/swarm-demo.git /build; cd /build/agent-two; chmod +x run.sh; ./run.sh $GATEWAY_IP"
+```
+
+##### Node X -- Repeated as many times as needed
+```
+export NODE=node3
+export GATEWAY_IP=`docker-machine inspect gateway | grep IPAddress | tr -d '[[:space:]]' | cut -d':' -f2 | cut -d'"' -f2`
+docker-machine ssh $NODE "mkdir /build; git clone https://github.com/Tallisado/swarm-demo.git /build; cd /build/agent-two; chmod +x run.sh; ./run.sh $GATEWAY_IP"
 ```
 
 # Let's see the VMs using docker machine

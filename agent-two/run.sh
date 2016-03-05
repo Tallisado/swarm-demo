@@ -25,7 +25,8 @@ ufw default allow incoming
 
 sleep 5
 
-consul agent -data-dir /tmp/consul -node=agent-two \
+#consul agent -data-dir /tmp/consul -node=agent-two \
+consul agent -data-dir /tmp/consul \
     -bind=$MYIP -client=0.0.0.0 \
 	-config-dir /etc/consul.d \
     -retry-join $GATEWAY_IP \
