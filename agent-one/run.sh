@@ -17,7 +17,7 @@ chmod +x consul
 mv consul /usr/bin/consul
 cp -R /build/agent-one/consul.d /etc/
 
-MYIP=`/sbin/ifconfig eth0 | grep 'inet addr:' | cut -d: -f2| cut -d' ' -f1 |  tr -d '[[:space:]]'`
+MY_IP=`/sbin/ifconfig eth0 | grep 'inet addr:' | cut -d: -f2| cut -d' ' -f1 |  tr -d '[[:space:]]'`
 GATEWAY_IP=$1
 
 ufw --force enable
@@ -26,7 +26,7 @@ ufw default allow incoming
 sleep 5
 
 consul agent -data-dir /tmp/consul -node=agent-one \
-    -bind=$MYIP -client=0.0.0.0 \
+    -bind=$MY_IP -client=0.0.0.0 \
 	-config-dir /etc/consul.d \
     -retry-join $GATEWAY_IP \
     &
@@ -50,13 +50,12 @@ curl -L https://github.com/docker/compose/releases/download/1.5.2/docker-compose
 chmod +x /usr/local/bin/docker-compose
 
 echo Running Registrator...
-docker run -d -h $MYIP \
+docker run -d -h $MY_IP \
     --name=registrator \
     --volume=/var/run/docker.sock:/tmp/docker.sock \
     gliderlabs/registrator:latest \
-    consul://$MYIP:8500
+    consul://$MY_IP:8500
 
-sleep 5
 echo Running cAdvisor...
 docker run --volume=/:/rootfs:ro \
     --volume=/var/run:/var/run:rw --volume=/sys:/sys:ro \
@@ -67,33 +66,10 @@ docker run --volume=/:/rootfs:ro \
 
 echo Installing Docker Swarm...
 docker pull swarm
-
-docker run -d --name swarm_joiner swarm join \
-    --addr=$MYIP:2375 \
-    token://acdb9dfa3ea6da0b0cfb2c819385fcd3
-
-sleep 5
-
-docker run -d -p 12375:2375 --name swarm_manager \
-    swarm manage token://acdb9dfa3ea6da0b0cfb2c819385fcd3
-#
-# echo Running Mysql...
-
-cd /build/agent-one
-export DOCKER_HOST=tcp://$MYIP:12375
+docker run -d swarm join --advertise=$MY_IP:2375 consul://$GATEWAY_IP:8500
 
 
-# echo Running angular-admin-seed...
 docker pull ghost
-export DOCKER_HOST=tcp://$MYIP:12375
-echo Docker Info...
-# while true; do
-#     if !docker info | grep "$MYIP" > /dev/null; then
-#         echo Waiting for Swarm Manager working...
-#         sleep 2;
-#     else
-#         break
-#     fi;
-# done
-sleep 10
+cd /build/agent-one
+export DOCKER_HOST=tcp://$GATEWAY_IP:4000
 docker-compose scale ghost=1

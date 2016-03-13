@@ -33,15 +33,24 @@ mv consul-template /usr/bin/consul-template
 ufw --force enable
 ufw default allow incoming
 
-MYIP=`/sbin/ifconfig eth0 | grep 'inet addr:' | cut -d: -f2| cut -d' ' -f1 |  tr -d '[[:space:]]'`
+MY_IP=`/sbin/ifconfig eth0 | grep 'inet addr:' | cut -d: -f2| cut -d' ' -f1 |  tr -d '[[:space:]]'`
 
 consul agent -server -bootstrap-expect 1 \
-	-data-dir /tmp/consul -node=gateway -bind=$MYIP \
+	-data-dir /tmp/consul -node=gateway -bind=$MY_IP \
 	-client=0.0.0.0 \
 	-config-dir /etc/consul.d -ui-dir /opt/consul/ \
   &
 
 sleep 5
+
+echo Installing Docker Swarm...
+docker pull swarm
+docker run -d --name swarm_manager \
+  swarm manage -H 4000:4000 --advertise $MY_IP:4000 consul://$MY_IP:8500/nodes
+
+
+#swarm join --advertise=$MY_IP:2375 consul://$GATEWAY_IP
+
 
 consul-template \
   -consul 127.0.0.1:8500 \

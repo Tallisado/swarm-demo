@@ -17,7 +17,7 @@ chmod +x consul
 mv consul /usr/bin/consul
 cp -R /build/agent-one/consul.d /etc/
 
-MYIP=`/sbin/ifconfig eth0 | grep 'inet addr:' | cut -d: -f2| cut -d' ' -f1 |  tr -d '[[:space:]]'`
+MY_IP=`/sbin/ifconfig eth0 | grep 'inet addr:' | cut -d: -f2| cut -d' ' -f1 |  tr -d '[[:space:]]'`
 GATEWAY_IP=$1
 
 ufw --force enable
@@ -27,7 +27,7 @@ sleep 5
 
 #consul agent -data-dir /tmp/consul -node=agent-two \
 consul agent -data-dir /tmp/consul \
-    -bind=$MYIP -client=0.0.0.0 \
+    -bind=$MY_IP -client=0.0.0.0 \
 	-config-dir /etc/consul.d \
     -retry-join $GATEWAY_IP \
     &
@@ -53,13 +53,12 @@ curl -L https://github.com/docker/compose/releases/download/1.5.2/docker-compose
 chmod +x /usr/local/bin/docker-compose
 
 echo Running Registrator...
-docker run -d -h $MYIP \
+docker run -d -h $MY_IP \
     --name=registrator \
     --volume=/var/run/docker.sock:/tmp/docker.sock \
     gliderlabs/registrator:latest \
-    consul://$MYIP:8500
+    consul://$MY_IP:8500
 
-sleep 5
 echo Running cAdvisor...
 docker run --volume=/:/rootfs:ro \
     --volume=/var/run:/var/run:rw --volume=/sys:/sys:ro \
@@ -70,10 +69,7 @@ docker run --volume=/:/rootfs:ro \
 
 echo Installing Docker Swarm...
 docker pull swarm
-
-docker run -d --name swarm_joiner swarm join \
-    --addr=$MYIP:2375 \
-    token://acdb9dfa3ea6da0b0cfb2c819385fcd3
+docker run -d swarm join --advertise=$MY_IP:2375 consul://$GATEWAY_IP:8500
 
 
 docker pull ghost

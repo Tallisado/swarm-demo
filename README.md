@@ -94,7 +94,7 @@ gateway    159.203.27.156:8301  alive   server  0.6.0  2         dc1
 ## GHOST
 - on node1
 ```
-export DOCKER_HOST=tcp://$MYIP:12375
+export DOCKER_HOST=tcp://$MY_IP:12375
 docker-compose ps
 ```
 - THEIP:THEGHOSTPORT
