@@ -25,8 +25,8 @@ ufw default allow incoming
 
 sleep 5
 
-#consul agent -data-dir /tmp/consul -node=agent-two \
-consul agent -data-dir /tmp/consul \
+consul agent -data-dir /tmp/consul -node=agent-two \
+#consul agent -data-dir /tmp/consul \
     -bind=$MY_IP -client=0.0.0.0 \
 	-config-dir /etc/consul.d \
     -retry-join $GATEWAY_IP \
@@ -69,7 +69,7 @@ docker run --volume=/:/rootfs:ro \
 
 echo Installing Docker Swarm...
 docker pull swarm
-docker run -d swarm join --advertise=$MY_IP:2375 consul://$GATEWAY_IP:8500
+docker run -d --name swarm-two swarm join --advertise=$MY_IP:2375 consul://$GATEWAY_IP:8500/nodes
 
 
 docker pull ghost

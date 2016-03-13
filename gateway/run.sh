@@ -45,9 +45,10 @@ sleep 5
 
 echo Installing Docker Swarm...
 docker pull swarm
-docker run -d --name swarm_manager \
-  swarm manage -H 4000:4000 --advertise $MY_IP:4000 consul://$MY_IP:8500/nodes
-
+# docker run -d --name swarm_manager \
+#   swarm manage -H 4000:4000 --advertise $MY_IP:4000 consul://$MY_IP:8500/nodes
+docker run -d -p 4000:4000 --name swarm_manager \
+  swarm manage  -H :4000 consul://$MY_IP:8500/nodes
 
 #swarm join --advertise=$MY_IP:2375 consul://$GATEWAY_IP
 
